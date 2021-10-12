@@ -7,8 +7,13 @@ class StravaDataHandler:
         self.directory = directory
         self.event_name = None
         self.event_type = None
+        self.min_lat = 0.0
+        self.max_lat = 0.0
+        self.min_long = 0.0
+        self.max_long = 0.0
         self.data_points = []
         self.load_data_points()
+
 
     def set_new_file_dir(self, directory):
         self.directory = directory
@@ -22,10 +27,25 @@ class StravaDataHandler:
         self.event_type = gpx_root[1][1].text
 
         self.data_points = []
+
+        self.min_lat = 90
+        self.max_lat = -90
+        self.min_long = 180
+        self.max_long = -180
+
         for single_gpx_point in gpx_root[1][2]:
-            lat = single_gpx_point.attrib['lat']
-            long = single_gpx_point.attrib['lon']
-            elevation = single_gpx_point[0].text
+            lat = float(single_gpx_point.attrib['lat'])
+            long = float(single_gpx_point.attrib['lon'])
+            if lat < self.min_lat:
+                self.min_lat = lat
+            if lat > self.max_lat:
+                self.max_lat = lat
+            if long < self.min_long:
+                self.min_long = long
+            if long > self.max_long:
+                self.max_long = long
+
+            elevation = float(single_gpx_point[0].text)
             timestamp = single_gpx_point[1].text
             self.data_points.append(DataPoint(lat=lat, long=long, elevation=elevation, timestamp=timestamp))
 
